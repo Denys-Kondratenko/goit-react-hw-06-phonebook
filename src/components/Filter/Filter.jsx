@@ -1,25 +1,27 @@
-import PropTypes from 'prop-types';
 import { Formik, Form } from 'formik';
 import { FilterForm, Input } from './Filter.styled';
+import { useDispatch, useSelector } from 'react-redux';
+import { getFilterContacts } from 'redux/filterSlice';
+import { selectFilter } from 'redux/selectors';
 
-export const Filter = ({ initialValues, onChange }) => {
+export const Filter = () => {
+  const dispatch = useDispatch();
+  const filter = useSelector(selectFilter);
+
   return (
-    <Formik initialValues={initialValues}>
+    <Formik initialValues={filter}>
       <Form autoComplete="off">
         <FilterForm htmlFor="filter">
           Find contacts by name
           <Input
             name="filter"
-            value={initialValues.filter}
-            onChange={onChange}
+            value={filter}
+            onChange={event =>
+              dispatch(getFilterContacts(event.currentTarget.value))
+            }
           />
         </FilterForm>
       </Form>
     </Formik>
   );
-};
-
-Filter.propTypes = {
-  initialValues: PropTypes.shape({ filter: PropTypes.string.isRequired }),
-  onChange: PropTypes.func.isRequired,
 };

@@ -1,5 +1,3 @@
-import PropTypes from 'prop-types';
-
 import { Formik, ErrorMessage } from 'formik';
 import {
   AddButton,
@@ -8,7 +6,10 @@ import {
   Input,
 } from './AddContactForm.styled';
 import * as yup from 'yup';
-import { nanoid } from 'nanoid';
+// import { nanoid } from 'nanoid';
+import { useDispatch, useSelector } from 'react-redux';
+import { addContact } from 'redux/contactsSlice';
+import { selectContacts } from 'redux/selectors';
 
 const phoneRegExp =
   /\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}$/;
@@ -36,23 +37,28 @@ const schema = yup.object().shape({
 
 const initialValues = { name: '', number: '' };
 
-const onSubmit = (values, onSave, contactsName, alertMessage) => {
-  contactsName.includes(values.name)
-    ? alert(alertMessage(values.name))
-    : onSave({ id: nanoid(), name: values.name, number: values.number });
-};
-
 const alertMessage = name => {
   return `${name} is already in contacts`;
 };
 
-export const AddContactForm = ({ onSave, contactsName }) => {
+export const AddContactForm = () => {
+  const dispatch = useDispatch();
+  const contacts = useSelector(selectContacts);
+
+  const contactsName = contacts.map(contact => contact.name);
+
+  const onSubmit = (values, contactsName, alertMessage) => {
+    contactsName.includes(values.name)
+      ? alert(alertMessage(values.name))
+      : dispatch(addContact(values.name, values.number));
+  };
+
   return (
     <Formik
       initialValues={initialValues}
       validationSchema={schema}
       onSubmit={(values, { resetForm }) => {
-        onSubmit(values, onSave, contactsName, alertMessage);
+        onSubmit(values, contactsName, alertMessage);
         resetForm();
       }}
     >
@@ -71,9 +77,4 @@ export const AddContactForm = ({ onSave, contactsName }) => {
       </ContactForm>
     </Formik>
   );
-};
-
-AddContactForm.propTypes = {
-  onSave: PropTypes.func.isRequired,
-  contactsName: PropTypes.arrayOf(PropTypes.string).isRequired,
 };

@@ -19,7 +19,7 @@ export const contactSlice = createSlice({
         };
       },
     },
-    deleteContact(state, action) {
+    deleteContact: (state, action) => {
       state.initialContacts = state.initialContacts.filter(
         contact => contact.id !== action.payload
       );
